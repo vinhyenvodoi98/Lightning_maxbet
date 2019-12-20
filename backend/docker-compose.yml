@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  # SIMNET CONTAINERS
+  simnet-btcd:
+    image: radarion/btcd-integration:v1.2.3
+    container_name: simnet-btcd
+    ports:
+      - '18555:18555'
+      - '18556:18556'
+    entrypoint: ['./start-btcd.sh']
+
+  simnet-btcctl:
+    image: radarion/btcd-integration:v1.2.3
+    container_name: simnet-btcctl
+    links:
+      - 'simnet-btcd:rpcserver'
+    entrypoint: ['./start-btcctl.sh']
+
+  simnet-lnd-btcd-alice:
+    image: radarion/lnd-integration-alice-btcd:v1.2.3
+    container_name: simnet-lnd-btcd-alice
+    ports:
+      - '10009:10009'
+      - '8080:8080'
+    links:
+      - 'simnet-btcd:btcd'
+    entrypoint: ['./start-lnd.sh']
+    command: ['--rpclisten=0.0.0.0:10009', '--restlisten=0.0.0.0:8080']
+
+  simnet-lnd-btcd-bob:
+    image: radarion/lnd-integration-bob-btcd:v1.2.3
+    container_name: simnet-lnd-btcd-bob
+    ports:
+      - '10010:10009'
+      - '8081:8080'
+    links:
+      - 'simnet-btcd:btcd'
+    entrypoint: ['./start-lnd.sh']
+    command: ['--rpclisten=0.0.0.0:10009', '--restlisten=0.0.0.0:8080']
+
+  simnet-lnd-btcd-charlie:
+    image: radarion/lnd-integration-charlie-btcd:v1.2.3
+    container_name: simnet-lnd-btcd-charlie
+    ports:
+      - '10011:10009'
+      - '8082:8080'
+    links:
+      - 'simnet-btcd:btcd'
+    entrypoint: ['./start-lnd.sh']
+    command: ['--rpclisten=0.0.0.0:10009', '--restlisten=0.0.0.0:8080']
