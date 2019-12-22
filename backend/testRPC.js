@@ -1,4 +1,5 @@
 require('dotenv').config();
+var fs = require('fs');
 var grpc = require('grpc');
 var protoLoader = require('@grpc/proto-loader');
 
@@ -8,20 +9,21 @@ const packageDefinition = protoLoader.loadSync('./rpc.proto', {
 const lnrpc = grpc.loadPackageDefinition(packageDefinition).lnrpc;
 
 process.env.GRPC_SSL_CIPHER_SUITES = 'HIGH+ECDSA';
-var lndCert = Buffer.from(process.env.LND_CERT, 'utf8');
+var cert = fs.readFileSync(process.env.LND_CERT_PATH);
+var lndCert = Buffer.from(cert, 'utf8');
 var sslCreds = grpc.credentials.createSsl(lndCert);
 
 var macaroonCreds = grpc.credentials.createFromMetadataGenerator(function(args, callback) {
-  var macaroon = process.env.LND_MACAROON;
+  var macaroon = fs.readFileSync(process.env.LND_MACAROON_PATH).toString('hex');
   var metadata = new grpc.Metadata();
   metadata.add('macaroon', macaroon);
   callback(null, metadata);
 });
 
 var creds = grpc.credentials.combineChannelCredentials(sslCreds, macaroonCreds);
-var lightning = new lnrpc.Lightning('localhost:10009', creds);
+var lightning = new lnrpc.Lightning(process.env.LND_URL, creds);
 
-var walletUnlocker = new lnrpc.WalletUnlocker('localhost:10009', sslCreds);
+// var walletUnlocker = new lnrpc.WalletUnlocker(process.env.LND_URL, sslCreds);
 
 var genSeed = () => {
   return new Promise((resolve, reject) => {

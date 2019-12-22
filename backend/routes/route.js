@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const rpc = require('../testRPC');
+const provably = require('../provably_fair/index');
 
 router.get('/genSeed', async (req, res) => {
   var info = await rpc.genSeed();
@@ -79,6 +80,13 @@ router.post('/sendPayment', async (req, res) => {
 router.post('/', async (req, res) => {
   res.json({
     hello: 'hello' + req.body.hello
+  });
+});
+
+router.get('/getServerSeed', async (req, res) => {
+  var serverSeed = await provably.createServerSeed();
+  res.json({
+    serverSeed
   });
 });
 

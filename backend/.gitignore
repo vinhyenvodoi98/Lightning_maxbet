@@ -3,3 +3,4 @@ yarn.lock
 data
 log
 .env
+scripts
