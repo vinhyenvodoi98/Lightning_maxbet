@@ -200,8 +200,23 @@ var channalBalance = () => {
   });
 };
 
-//02b91a3e09cc9e207aea58a6a172b94fd6946cc7f364b13b9419c17fee56b6dca1 alice
-//02d61e6b1e69f56e1be75fc270abdb9daade494df32ce4b7bb008a0caed5e4bb3c bob
+var subscribeTransactions = () => {
+  return new Promise((resolve, reject) => {
+    var request = {};
+    var call = lightning.subscribeTransactions(request);
+    call.on('data', function(response) {
+      // A response was received from the server.
+      resolve(response);
+    });
+    call.on('status', function(status) {
+      // The current status of the stream.
+    });
+    call.on('end', function() {
+      // The server has closed the stream.
+    });
+  });
+};
+
 module.exports = {
   genSeed,
   getInfo,
@@ -216,5 +231,6 @@ module.exports = {
   sendPayment,
   channelBalance,
   closeChannel,
-  channalBalance
+  channalBalance,
+  subscribeTransactions
 };
