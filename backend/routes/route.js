@@ -73,20 +73,25 @@ router.post('/addInvoice', async (req, res) => {
 });
 
 router.post('/sendPayment', async (req, res) => {
-  var sendPayment = await rpc.sendPayment(req.body);
+  var sendPayment = await rpc.sendPayment(req.body.payment_request);
   res.json(sendPayment);
-});
-
-router.post('/', async (req, res) => {
-  res.json({
-    hello: 'hello' + req.body.hello
-  });
 });
 
 router.get('/getServerSeed', async (req, res) => {
   var serverSeed = await provably.createServerSeed();
   res.json({
     serverSeed
+  });
+});
+
+router.post('/luckyNumber', async (req, res) => {
+  var luckyNumber = await provably.combinationSeed(
+    req.body.serverSeed,
+    req.body.clientSeed,
+    req.body.nonce
+  );
+  res.json({
+    luckyNumber
   });
 });
 

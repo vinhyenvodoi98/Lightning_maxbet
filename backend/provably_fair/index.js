@@ -11,10 +11,12 @@ const combinationSeed = (severSeed, clientSeed, nonce) => {
     const combination = severSeed + clientSeed + nonce;
 
     resolve(
-      crypto
-        .createHash('sha512')
-        .update(combination)
-        .digest('hex')
+      getResult(
+        crypto
+          .createHash('sha512')
+          .update(combination)
+          .digest('hex')
+      )
     );
   });
 };

@@ -15,12 +15,13 @@ export default function Game() {
   const [randomString, setRandomString] = useState('');
   const [nonce, setNonce] = useState(0);
   const [serverSeed, setServerSeed] = useState('');
+  const [luckyNumber, setLuckyNumber] = useState('');
+  var invoice;
 
   useEffect(() => {
     async function getProvider() {
       try {
         const ln = await requestProvider();
-        console.log(await ln.getInfo());
         setWebln(ln);
 
         createRandomString(30);
@@ -58,17 +59,59 @@ export default function Game() {
     setAmount(value);
   }
 
+  function getLuckyNumber() {
+    axios
+      .post(' http://localhost:4000/luckyNumber', {
+        serverSeed: serverSeed,
+        clientSeed: randomString,
+        nonce: nonce
+      })
+      .then(async res => {
+        setLuckyNumber(res.data.luckyNumber);
+        if (isUnder) {
+          if (res.data.luckyNumber < slide) {
+            invoice = await webln.makeInvoice({
+              amount: amount * (95 / (95 - slide)).toFixed(2),
+              defaultMemo: 'you win'
+            });
+            createInvoice(invoice.paymentRequest);
+          } else {
+            console.log('lose');
+          }
+        } else {
+          if (res.data.luckyNumber > slide) {
+            invoice = await webln.makeInvoice({
+              amount: amount * (95 / slide).toFixed(2),
+              defaultMemo: 'you win'
+            });
+            createInvoice(invoice.paymentRequest);
+          } else {
+            console.log('lose');
+          }
+        }
+      });
+  }
+
+  function createInvoice(payment_request) {
+    axios
+      .post('http://localhost:4000/sendPayment', {
+        payment_request
+      })
+      .then(res => {
+        console.log(res);
+      });
+  }
+
   function addInvoice() {
     axios
       .post(' http://localhost:4000/addInvoice', {
-        amt_paid: amount,
-        ClientSeed: randomString,
-        nonce: nonce
+        amt_paid: amount
       })
       .then(async res => {
         console.log(res.data.payment_request);
 
         await webln.sendPayment(res.data.payment_request);
+        getLuckyNumber();
         setNonce(nonce + 1);
       });
   }
@@ -82,7 +125,7 @@ export default function Game() {
               <InfoBox name='Your Bet' amount={amount} />
             </Col>
             <Col span={8} offset={8}>
-              <InfoBox name='Lucky Number' />
+              <InfoBox name='Lucky Number' luckyNumber={luckyNumber} />
             </Col>
           </Row>
         </Form.Item>

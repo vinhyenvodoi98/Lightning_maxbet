@@ -153,16 +153,15 @@ var addInvoice = amt_paid_sat => {
   });
 };
 
-var sendPayment = body => {
+var sendPayment = payment_request => {
   return new Promise((resolve, reject) => {
-    console.log(body.pub_key);
     var request = {
       // dest: <bytes>,
       // dest_string: <string>,
       // amt: <int64>,
       // payment_hash: <bytes>,
       // payment_hash_string: <string>,
-      payment_request: body.pub_key
+      payment_request: payment_request
       // final_cltv_delta: <int32>,
       // fee_limit: <FeeLimit>,
       // outgoing_chan_id: <uint64>,
