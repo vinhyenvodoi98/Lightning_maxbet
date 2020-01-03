@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const rpc = require('../testRPC');
+const rpc = require('../RPC');
 const provably = require('../provably_fair/index');
 
 router.get('/genSeed', async (req, res) => {
